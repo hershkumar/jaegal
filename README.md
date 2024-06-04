@@ -1,3 +1,3 @@
 # jaegal
 
-fzf-based pdf searcher
+pdf searcher

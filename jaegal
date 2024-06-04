@@ -1,0 +1,18 @@
+#!/bin/zsh
+
+output=$(sk --ansi -i -c 'rga -tpdf "{}"' --preview "
+pdf_path=\$(echo {} | cut -d':' -f1);
+page_number=\$(echo {} | sed 's/.*Page \([0-9]*\).*/\1/');
+search_text=\$(echo {} | sed 's/.*Page [0-9]*: //');
+echo \"File: \$pdf_path\";
+echo \"Page: \$page_number\";
+pdftotext -f \$page_number -l \$page_number \$pdf_path - | grep -i --color=always -E \"\$search_text|$\" 2>/dev/null
+")
+
+# the file path is from the start to the first colon
+file_path=$(echo $output | cut -d':' -f1)
+# page number is formatted as "Page: <number>:", so we need to extract the number out of the string using cut
+page_number=$(echo $output | sed 's/.*Page \([0-9]*\).*/\1/')
+
+# now open the file in the default PDF viewer to the specified page
+nohup zathura $file_path -P $page_number >/dev/null 2>&1 &
